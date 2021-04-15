@@ -20692,7 +20692,7 @@ void clif_hat_effects( struct map_session_data* sd, struct block_list* bl, enum 
 	p->packetType = HEADER_ZC_HAT_EFFECT;
 	p->packetLength = (int16)( sizeof( struct PACKET_ZC_HAT_EFFECT ) + sizeof( int16 ) * tsd->hatEffects.size() );
 	p->aid = tsd->bl.id;
-	p->status = 1;
+	p->status = (tsd->state.hateffect || map_getmapflag(tsd->bl.m, MF_NOHATEFFECT)) ? 0 : 1;
 
 	for( size_t i = 0; i < tsd->hatEffects.size(); i++ ){
 		p->effects[i] = tsd->hatEffects[i];
@@ -20711,7 +20711,7 @@ void clif_hat_effect_single( struct map_session_data* sd, uint16 effectId, bool 
 	p->packetType = HEADER_ZC_HAT_EFFECT;
 	p->packetLength = (int16)( sizeof( struct PACKET_ZC_HAT_EFFECT ) + sizeof( int16 ) );
 	p->aid = sd->bl.id;
-	p->status = enable;
+	p->status = (sd->state.hateffect || map_getmapflag(sd->bl.m, MF_NOHATEFFECT)) ? 0 : enable;
 	p->effects[0] = effectId;
 
 	clif_send( p, p->packetLength, &sd->bl, AREA );

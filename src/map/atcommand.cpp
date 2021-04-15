@@ -10369,6 +10369,20 @@ ACMD_FUNC(refineui)
 #endif
 }
 
+
+ACMD_FUNC(hateffect) {
+	nullpo_retr(-1, sd);
+	if (sd->state.hateffect != 1) {
+		sd->state.hateffect = 1;
+		clif_displaymessage(fd, "Hat effects disabled");
+	}
+	else {
+		sd->state.hateffect = 0;
+		clif_displaymessage(fd, "Hat effects enabled");
+	}
+	return 0;
+}
+
 #include "../custom/atcommand.inc"
 
 /**
@@ -10678,6 +10692,8 @@ void atcommand_basecommands(void) {
 		ACMD_DEF2("completequest", quest),
 		ACMD_DEF2("checkquest", quest),
 		ACMD_DEF(refineui),
+		
+		ACMD_DEF(hateffect),
 	};
 	AtCommandInfo* atcommand;
 	int i;
