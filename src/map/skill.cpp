@@ -20287,6 +20287,32 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, t_itemid na
 			tmp_item.card[1] = ((sc*5)<<8)+ele;
 			tmp_item.card[2] = GetWord(sd->status.char_id,0); // CharId
 			tmp_item.card[3] = GetWord(sd->status.char_id,1);
+
+			if (equip && skill_id >= BS_DAGGER && skill_id <= BS_SPEAR) {
+				int rank = pc_famerank(sd->status.char_id, MAPID_BLACKSMITH);
+				int options[11] = { 3, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4 };
+
+				uint16 rnd_group;
+				std::string group_name = "Blacksmith_Forge";
+				random_option_group.option_get_id(group_name.c_str(), rnd_group);
+
+				std::shared_ptr<s_random_opt_group> group = random_option_group.find(rnd_group);
+
+				if (group != nullptr) {
+					// Apply Random options (if available)
+					if (group->max_random > 0) {
+						//for (size_t i = 0; i < group->slots.size(); i++)
+						for (size_t i = 0; i < options[rank]; i++) {
+							ShowDebug("options[rank] %d\n", options[rank]);
+							std::shared_ptr<s_random_opt_group_entry> option = util::vector_random(group->slots[static_cast<uint16>(i)]);
+
+							tmp_item.option[i].id = option->id;
+							tmp_item.option[i].value = rnd_value(option->min_value, option->max_value);
+							tmp_item.option[i].param = option->param;
+						}
+					}
+				}
+			}
 		} else {
 			//Flag is only used on the end, so it can be used here. [Skotlex]
 			switch (skill_id) {
