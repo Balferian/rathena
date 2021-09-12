@@ -21822,7 +21822,7 @@ void clif_parse_lapineSynthesis_submit(int fd, struct map_session_data* sd) {
 			set_eof(sd->fd);
 			return;
 		}
-		if (id->flag.delay_consume != 2)
+		if (id->flag.delay_consume & DELAYCONSUME_TEMP)
 			pc_delitem(sd, sd->itemindex, 1, 0, 0, LOG_TYPE_CONSUME);
 	}
 
@@ -22059,7 +22059,7 @@ void clif_parse_lapineUpgrade_submit(int fd, struct map_session_data* sd) {
 			set_eof(sd->fd);
 			return;
 		}
-		if (id->flag.delay_consume != 2)
+		if (id->flag.delay_consume & DELAYCONSUME_TEMP)
 			pc_delitem(sd, sd->itemindex, 1, 0, 0, LOG_TYPE_CONSUME);
 	}
 
