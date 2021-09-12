@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <stdarg.h>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -292,26 +293,16 @@ enum e_race : int8{
 	RC_MAX //auto upd enum for array size
 };
 
-enum e_classAE : int8{
-	CLASS_NONE = -1, //don't give us bonus
-	CLASS_NORMAL = 0,
-	CLASS_BOSS,
-	CLASS_GUARDIAN,
-	CLASS_BATTLEFIELD,
-	CLASS_ALL,
-	CLASS_MAX //auto upd enum for array len
-};
-
 enum e_race2 : uint8{
 	RC2_NONE = 0,
 	RC2_GOBLIN,
 	RC2_KOBOLD,
 	RC2_ORC,
 	RC2_GOLEM,
-	RC2_GUARDIAN,
+	RC2_GUARDIAN, // Deprecated to CLASS_GUARDIAN
 	RC2_NINJA,
 	RC2_GVG,
-	RC2_BATTLEFIELD,
+	RC2_BATTLEFIELD, // Deprecated to CLASS_BATTLEFIELD
 	RC2_TREASURE,
 	RC2_BIOLAB,
 	RC2_MANUK,
@@ -329,6 +320,8 @@ enum e_race2 : uint8{
 	RC2_HEARTHUNTER,
 	RC2_ROCKRIDGE,
 	RC2_WERNER_LAB,
+	RC2_TEMPLE_DEMON,
+	RC2_ILLUSION_VAMPIRE,
 	RC2_MAX
 };
 
@@ -350,6 +343,19 @@ enum e_element : int8{
 	ELE_WEAPON,
 	ELE_ENDOWED,
 	ELE_RANDOM,
+};
+
+static std::unordered_map<std::string, e_element> um_eleid2elename {
+	{ "Neutral", ELE_NEUTRAL },
+	{ "Water", ELE_WATER },
+	{ "Earth", ELE_EARTH },
+	{ "Fire", ELE_FIRE },
+	{ "Wind", ELE_WIND },
+	{ "Poison", ELE_POISON },
+	{ "Holy", ELE_HOLY },
+	{ "Dark", ELE_DARK },
+	{ "Ghost", ELE_GHOST },
+	{ "Undead", ELE_UNDEAD },
 };
 
 #define MAX_ELE_LEVEL 4 /// Maximum Element level
@@ -509,7 +515,7 @@ enum _sp {
 	SP_WEAPON_ATK_RATE, SP_WEAPON_MATK_RATE, SP_DROP_ADDRACE, SP_DROP_ADDCLASS, SP_NO_MADO_FUEL, // 2083-2087
 	SP_IGNORE_DEF_CLASS_RATE, SP_REGEN_PERCENT_HP, SP_REGEN_PERCENT_SP, SP_SKILL_DELAY, SP_NO_WALK_DELAY, //2088-2092
 	SP_LONG_SP_GAIN_VALUE, SP_LONG_HP_GAIN_VALUE, SP_SHORT_ATK_RATE, SP_MAGIC_SUBSIZE, SP_CRIT_DEF_RATE, // 2093-2097
-	SP_MAGIC_SUBDEF_ELE // 2098
+	SP_MAGIC_SUBDEF_ELE, SP_REDUCE_DAMAGE_RETURN // 2098-2099
 };
 
 enum _look {
@@ -722,13 +728,6 @@ struct iwall_data {
 	bool shootable;
 };
 
-struct s_questinfo {
-	struct npc_data *nd;
-	e_questinfo_types icon;
-	e_questinfo_markcolor color;
-	struct script_code* condition;
-};
-
 struct map_data {
 	char name[MAP_NAME_LENGTH];
 	uint16 index; // The map index used by the mapindex* functions.
@@ -766,7 +765,7 @@ struct map_data {
 	struct Channel *channel;
 
 	/* ShowEvent Data Cache */
-	std::vector<s_questinfo> qi_data;
+	std::vector<int> qi_npc;
 
 	/* speeds up clif_updatestatus processing by causing hpmeter to run only when someone with the permission can view it */
 	unsigned short hpmeter_visible;
@@ -795,6 +794,8 @@ extern int minsave_interval;
 extern int16 save_settings;
 extern int night_flag; // 0=day, 1=night [Yor]
 extern int enable_spy; //Determines if @spy commands are active.
+
+extern uint32 start_status_points;
 
 // Agit Flags
 extern bool agit_flag;

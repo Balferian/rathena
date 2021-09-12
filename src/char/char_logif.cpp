@@ -418,7 +418,7 @@ void chlogif_parse_change_sex_sub(int sex, int acc, int char_id, int class_, int
 	if (SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `equip` = '0' WHERE `char_id` = '%d'", schema_config.inventory_db, char_id))
 		Sql_ShowDebug(sql_handle);
 
-	if (SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `class` = '%d', `weapon` = '0', `shield` = '0', `head_top` = '0', `head_mid` = '0', `head_bottom` = '0' WHERE `char_id` = '%d'", schema_config.char_db, class_, char_id))
+	if (SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `class` = '%d', `weapon` = '0', `shield` = '0', `head_top` = '0', `head_mid` = '0', `head_bottom` = '0', `sex` = '%c' WHERE `char_id` = '%d'", schema_config.char_db, class_, sex == SEX_MALE ? 'M' : 'F', char_id))
 		Sql_ShowDebug(sql_handle);
 	if (guild_id) // If there is a guild, update the guild_member data [Skotlex]
 		inter_guild_sex_changed(guild_id, acc, char_id, sex);
@@ -501,10 +501,6 @@ int chlogif_parse_ackchangecharsex(int char_id, int sex)
 	Sql_GetData(sql_handle, 2, &data, NULL); guild_id = atoi(data);
 	Sql_FreeResult(sql_handle);
 
-	if (SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `sex` = '%c' WHERE `char_id` = '%d'", schema_config.char_db, sex == SEX_MALE ? 'M' : 'F', char_id)) {
-		Sql_ShowDebug(sql_handle);
-		return 1;
-	}
 	chlogif_parse_change_sex_sub(sex, account_id, char_id, class_, guild_id);
 
 	// disconnect player if online on char-server
@@ -757,7 +753,7 @@ int chlogif_parse(int fd) {
 }
 
 TIMER_FUNC(chlogif_check_connect_logserver){
-	if (login_fd > 0 && session[login_fd] != NULL)
+	if (chlogif_isconnected())
 		return 0;
 
 	ShowInfo("Attempt to connect to login-server...\n");
@@ -790,7 +786,7 @@ TIMER_FUNC(chlogif_check_connect_logserver){
 
 
 int chlogif_isconnected(){
-	return (login_fd > 0 && session[login_fd] && !session[login_fd]->flag.eof);
+	return session_isActive(login_fd);
 }
 
 void do_init_chlogif(void) {
@@ -839,7 +835,7 @@ void chlogif_on_ready(void)
 	chlogif_send_acc_tologin(INVALID_TIMER, gettick(), 0, 0);
 
 	// if no map-server already connected, display a message...
-	ARR_FIND( 0, ARRAYLENGTH(map_server), i, map_server[i].fd > 0 && !map_server[i].map.empty() );
+	ARR_FIND( 0, ARRAYLENGTH(map_server), i, session_isValid(map_server[i].fd) && !map_server[i].map.empty() );
 	if( i == ARRAYLENGTH(map_server) )
 		ShowStatus("Awaiting maps from map-server.\n");
 }
